@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  conversation-memory:
+    build: .
+    container_name: conversation_memory_module
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./conversation_memory.db
+      - DEBUG=False
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./conversation_memory.db:/app/conversation_memory.db
+      - ./:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
