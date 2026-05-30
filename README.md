@@ -49,7 +49,7 @@ Validate all incoming requests using Pydantic schemas.
 
 Interactive Documentation
 
-Automatically generated Swagger and ReDoc documentation.
+Automatically generated Swagger UI and ReDoc documentation.
 
 Database Abstraction
 
@@ -59,35 +59,23 @@ SQLAlchemy ORM allows switching databases without changing business logic.
 
 System Architecture
 
-+------------------+
-| Client Application |
-+---------+--------+
-          |
-          v
-+------------------+
-| FastAPI Routes   |
-+---------+--------+
-          |
-          v
-+------------------+
-| Validation Layer |
-| (Pydantic)       |
-+---------+--------+
-          |
-          v
-+------------------+
-| CRUD Layer       |
-+---------+--------+
-          |
-          v
-+------------------+
-| SQLAlchemy ORM   |
-+---------+--------+
-          |
-          v
-+------------------+
-| SQLite Database  |
-+------------------+
+Client Application
+        │
+        ▼
+ FastAPI Routes
+        │
+        ▼
+ Validation Layer
+   (Pydantic)
+        │
+        ▼
+    CRUD Layer
+        │
+        ▼
+ SQLAlchemy ORM
+        │
+        ▼
+ SQLite Database
 
 ---
 
@@ -115,12 +103,10 @@ Application entry point.
 
 Responsibilities:
 
-- Create FastAPI application.
-- Register API routes.
-- Configure middleware.
-- Start application server.
-
----
+- Create FastAPI application
+- Register API routes
+- Configure middleware
+- Start application server
 
 database.py
 
@@ -128,12 +114,10 @@ Database configuration module.
 
 Responsibilities:
 
-- Create SQLAlchemy engine.
-- Configure database session.
-- Provide dependency injection for database access.
-- Initialize database tables.
-
----
+- Create SQLAlchemy engine
+- Configure database session
+- Provide dependency injection
+- Initialize database tables
 
 models.py
 
@@ -141,11 +125,9 @@ Contains SQLAlchemy ORM models.
 
 Responsibilities:
 
-- Define database tables.
-- Define relationships.
-- Define indexes and constraints.
-
----
+- Define database tables
+- Define indexes
+- Define constraints
 
 schemas.py
 
@@ -153,11 +135,9 @@ Contains Pydantic schemas.
 
 Responsibilities:
 
-- Request validation.
-- Response serialization.
-- Type checking.
-
----
+- Request validation
+- Response serialization
+- Type checking
 
 crud.py
 
@@ -165,13 +145,11 @@ Contains database operations.
 
 Responsibilities:
 
-- Create memory records.
-- Retrieve memory records.
-- Update memory records.
-- Delete memory records.
-- Search memories.
-
----
+- Create memory
+- Retrieve memory
+- Update memory
+- Delete memory
+- Search memory
 
 routes.py
 
@@ -179,10 +157,10 @@ Contains REST API endpoints.
 
 Responsibilities:
 
-- Receive HTTP requests.
-- Validate input.
-- Call CRUD functions.
-- Return responses.
+- Receive requests
+- Validate data
+- Execute CRUD operations
+- Return responses
 
 ---
 
@@ -193,25 +171,48 @@ Prerequisites
 - Python 3.8+
 - pip
 
----
-
 Create Virtual Environment
 
-Windows:
+Windows
 
 python -m venv venv
 venv\Scripts\activate
 
-Linux/Mac:
+Linux/Mac
 
 python -m venv venv
 source venv/bin/activate
 
----
-
 Install Dependencies
 
 pip install -r requirements.txt
+
+---
+
+Configuration
+
+The application supports configuration using environment variables.
+
+Example:
+
+DATABASE_URL=sqlite:///./conversation_memory.db
+
+---
+
+Environment Variables
+
+Variable| Description
+DATABASE_URL| Database connection string
+HOST| Server host
+PORT| Server port
+DEBUG| Debug mode
+
+Example:
+
+DATABASE_URL=sqlite:///./conversation_memory.db
+HOST=0.0.0.0
+PORT=8000
+DEBUG=True
 
 ---
 
@@ -229,7 +230,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 API Documentation
 
-After starting the application:
+After startup:
 
 Swagger UI:
 
@@ -245,27 +246,25 @@ Database Model
 
 ConversationMemory
 
-Represents a single conversation memory.
-
 Field| Type| Description
-id| Integer| Primary key
-session_id| String| Session identifier
-question| Text| Stored question
-answer| Text| Stored answer
-timestamp| DateTime| Creation timestamp
-tags| String| Optional tags
+id| Integer| Primary Key
+session_id| String| Session Identifier
+question| Text| User Question
+answer| Text| Stored Answer
+timestamp| DateTime| Creation Time
+tags| String| Optional Tags
 
 ---
 
 Example Record
 
 {
-    "id": 1,
-    "session_id": "interview-001",
-    "question": "Tell me about yourself",
-    "answer": "I am a software engineer.",
-    "tags": "introduction,profile",
-    "timestamp": "2026-05-30T12:00:00"
+  "id": 1,
+  "session_id": "interview-001",
+  "question": "Tell me about yourself",
+  "answer": "I am a software engineer",
+  "tags": "introduction,profile",
+  "timestamp": "2026-05-30T12:00:00"
 }
 
 ---
@@ -276,149 +275,103 @@ Health Check
 
 GET /health
 
-Checks service status.
-
 Response:
 
 {
-    "status": "healthy"
+  "status": "healthy"
 }
-
----
 
 Create Memory
 
 POST /memory
 
-Stores a new memory.
-
-Request:
-
-{
-    "session_id": "session-123",
-    "question": "What is FastAPI?",
-    "answer": "A modern Python web framework.",
-    "tags": "python,backend"
-}
-
-Response:
-
-{
-    "id": 1,
-    "session_id": "session-123",
-    "question": "What is FastAPI?",
-    "answer": "A modern Python web framework.",
-    "tags": "python,backend",
-    "timestamp": "2026-05-30T12:00:00"
-}
-
----
-
 Get All Memories
 
 GET /memory
-
-Query Parameters:
-
-skip
-limit
-session_id
-
-Example:
-
-GET /memory?skip=0&limit=50
-
----
 
 Get Memory By ID
 
 GET /memory/{id}
 
-Example:
-
-GET /memory/1
-
----
-
 Get Session Memories
 
 GET /memory/session/{session_id}
-
-Example:
-
-GET /memory/session/interview-001
-
----
 
 Search Memories By Tags
 
 GET /memory/search/tags
 
-Example:
-
-GET /memory/search/tags?tags=python,backend
-
----
-
 Update Memory
 
 PUT /memory/{id}
-
-Request:
-
-{
-    "answer": "Updated answer"
-}
-
----
 
 Delete Memory
 
 DELETE /memory/{id}
 
-Removes a single memory record.
-
----
-
 Delete Session
 
 DELETE /memory/session/{session_id}
 
-Deletes all memories belonging to a session.
+---
+
+Request / Response Examples
+
+Create Memory
+
+Request:
+
+{
+  "session_id": "session-123",
+  "question": "What is FastAPI?",
+  "answer": "A modern Python framework",
+  "tags": "python,backend"
+}
+
+Response:
+
+{
+  "id": 1,
+  "session_id": "session-123",
+  "question": "What is FastAPI?",
+  "answer": "A modern Python framework",
+  "tags": "python,backend",
+  "timestamp": "2026-05-30T12:00:00"
+}
 
 ---
 
 Data Flow
 
-Step 1:
+Step 1
 
-User submits a conversation.
+User submits a request.
 
-Question -> API
+Client → API
 
-Step 2:
+Step 2
 
-Pydantic validates input.
+Input validation.
 
-API -> Validation
+API → Pydantic
 
-Step 3:
+Step 3
 
-CRUD layer processes request.
+Business logic execution.
 
-Validation -> CRUD
+Pydantic → CRUD
 
-Step 4:
+Step 4
 
-SQLAlchemy stores data.
+Database operation.
 
-CRUD -> Database
+CRUD → SQLAlchemy → Database
 
-Step 5:
+Step 5
 
-Response returned.
+Return response.
 
-Database -> API -> User
+Database → API → Client
 
 ---
 
@@ -427,34 +380,62 @@ Error Handling
 400 Bad Request
 
 {
-    "detail": "Invalid request"
+  "detail": "Invalid request"
 }
-
----
 
 404 Not Found
 
 {
-    "detail": "Memory not found"
+  "detail": "Memory not found"
 }
-
----
 
 500 Internal Server Error
 
 {
-    "detail": "Internal server error"
+  "detail": "Internal server error"
 }
+
+---
+
+Testing
+
+Run all tests:
+
+pytest
+
+Run with coverage:
+
+pytest --cov=.
+
+Testing areas:
+
+- API endpoints
+- Validation
+- CRUD operations
+- Database integration
+
+---
+
+Deployment
+
+Using Uvicorn:
+
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+Using Docker:
+
+docker build -t conversation-memory .
+docker run -p 8000:8000 conversation-memory
 
 ---
 
 Performance Optimizations
 
-- Pagination support.
-- Indexed session_id.
-- Indexed timestamp.
-- Lightweight SQLite storage.
-- Efficient ORM queries.
+- Pagination support
+- Indexed session_id
+- Indexed timestamp
+- Efficient ORM queries
+- Lightweight SQLite backend
 
 ---
 
@@ -462,17 +443,44 @@ Security Considerations
 
 Current Security:
 
-- Input validation.
-- ORM-based SQL injection protection.
-- Controlled API responses.
+- Input validation
+- SQLAlchemy ORM protection
+- Controlled responses
 
 Recommended Production Security:
 
-- JWT Authentication.
-- HTTPS.
-- Rate Limiting.
-- User Authorization.
-- Audit Logging.
+- JWT Authentication
+- HTTPS
+- Rate Limiting
+- Access Control
+- Audit Logs
+
+---
+
+Logging and Monitoring
+
+Recommended tools:
+
+- Python Logging
+- Prometheus
+- Grafana
+- ELK Stack
+
+Metrics to monitor:
+
+- API response time
+- Error rates
+- Memory creation rate
+- Database performance
+
+---
+
+Limitations
+
+- SQLite is not ideal for heavy production workloads.
+- Tag search uses string matching.
+- No built-in authentication.
+- No semantic search capability.
 
 ---
 
@@ -480,7 +488,7 @@ Example Use Cases
 
 Interview Assistant
 
-Store candidate responses across interview rounds.
+Store candidate answers.
 
 AI Chatbot
 
@@ -488,30 +496,30 @@ Maintain conversation context.
 
 Customer Support
 
-Track customer interactions.
+Track support interactions.
 
 Virtual Assistant
 
-Remember previous user discussions.
+Remember previous discussions.
 
-Learning Platforms
+Learning Platform
 
-Store student question-answer history.
+Store student interactions.
 
 ---
 
 Future Enhancements
 
-- User Accounts
 - JWT Authentication
-- Redis Cache
+- User Accounts
+- Redis Caching
 - Vector Database Integration
 - Semantic Search
-- Conversation Summarization
-- Export to CSV/PDF
+- AI Summarization
 - Analytics Dashboard
+- PDF/CSV Export
 - Memory Expiration Policies
-- Multi-Tenant Support
+- Multi-Tenant Architecture
 
 ---
 
@@ -545,4 +553,4 @@ Language:
 
 Conclusion
 
-The Conversation Memory Module is a lightweight, scalable, and production-ready backend service for storing and managing conversational context. It provides session-based memory management, efficient retrieval mechanisms, search capabilities, and a clean REST API, making it suitable for AI assistants, interview systems, chatbots, customer support solutions, and any application that requires persistent conversational memory.
+The Conversation Memory Module is a lightweight, scalable, and maintainable backend service for storing and managing conversational context. By combining FastAPI, SQLAlchemy, and SQLite, it provides a reliable foundation for AI assistants, interview systems, chatbots, and customer support platforms that require persistent conversation memory.
